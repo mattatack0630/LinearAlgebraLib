@@ -10,13 +10,11 @@ public class Vector3f extends Vector
 	 */
 	public Vector3f()
 	{
-
 		this(0, 0, 0);
 	}
 
 	public Vector3f(float s)
 	{
-
 		this(s, s, s);
 	}
 
@@ -34,7 +32,6 @@ public class Vector3f extends Vector
 
 	public Vector3f(Vector3f src)
 	{
-
 		this(src.elements[0]);
 	}
 
@@ -59,16 +56,19 @@ public class Vector3f extends Vector
 	public void setX(float x)
 	{
 		elements[0][0] = x;
+		elementsChanged = true;
 	}
 
 	public void setY(float y)
 	{
 		elements[0][1] = y;
+		elementsChanged = true;
 	}
 
 	public void setZ(float z)
 	{
 		elements[0][2] = z;
+		elementsChanged = true;
 	}
 
 	public void set(float x, float y, float z)
@@ -76,6 +76,7 @@ public class Vector3f extends Vector
 		elements[0][0] = x;
 		elements[0][1] = y;
 		elements[0][2] = z;
+		elementsChanged = true;
 	}
 
 	/**
@@ -83,7 +84,6 @@ public class Vector3f extends Vector
 	 */
 	public Vector3f cross(Vector3f other)
 	{
-
 		return Vector3f.cross(this, other, this);
 	}
 
@@ -92,11 +92,13 @@ public class Vector3f extends Vector
 	 */
 	public static Vector3f cross(Vector3f left, Vector3f right, Vector3f dest)
 	{
-		Vector3f v = dest == null ? new Vector3f(0, 0, 0) : dest;
 		float x = (left.elements[0][1] * right.elements[0][2]) - (left.elements[0][2] * right.elements[0][1]);
 		float y = (left.elements[0][2] * right.elements[0][0]) - (left.elements[0][0] * right.elements[0][2]);
 		float z = (left.elements[0][0] * right.elements[0][1]) - (left.elements[0][1] * right.elements[0][0]);
-		v.set(x, y, z);
-		return v;
+
+		dest.set(x, y, z);
+		dest.elementsChanged = true;
+
+		return dest;
 	}
 }

@@ -10,13 +10,11 @@ public class Matrix2f extends SquareMatrix
 	 */
 	public Matrix2f()
 	{
-
 		super(2);
 	}
 
 	public Matrix2f(Matrix2f src)
 	{
-
 		super(src);
 	}
 }

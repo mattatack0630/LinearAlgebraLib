@@ -5,18 +5,61 @@ package linear;
  */
 public class MatrixGenerator
 {
-	// Make directional later
-	public static TransformMatrix genTransformMatrix(Vector3f translation, Rotation rotation, Vector3f scale, TransformMatrix dest)
+	public static Matrix4f genTransformMatrix(Vector3f translation, Rotation rotation, Vector3f scale, Matrix4f dest)
 	{
-		dest = dest == null ? new TransformMatrix() : dest;
+		dest = dest == null ? new TransformMatrix(true) : dest;
 		dest.setIdentity();
 
 		// Translate
-		dest.translate(translation);
+		Matrix4f.translate(dest, translation, dest);
 		// Rotate
-		dest.rotate(rotation);
+		Matrix4f.rotate(dest, rotation, dest);
 		// Scale
-		dest.scale(scale);
+		Matrix4f.scale(dest, scale, dest);
+
+		return dest;
+	}
+
+	public static Matrix4f genTransformMatrix(Vector3f translation, Rotation rotation, Vector3f scale, Matrix4f dest, String order)
+	{
+		dest = dest == null ? new TransformMatrix(true) : dest;
+		dest.setIdentity();
+
+		order = order.toUpperCase();
+
+		switch (order)
+		{
+			case "TRS":
+				Matrix4f.translate(dest, translation, dest);
+				Matrix4f.rotate(dest, rotation, dest);
+				Matrix4f.scale(dest, scale, dest);
+				break;
+			case "TSR":
+				Matrix4f.translate(dest, translation, dest);
+				Matrix4f.scale(dest, scale, dest);
+				Matrix4f.rotate(dest, rotation, dest);
+				break;
+			case "STR":
+				Matrix4f.scale(dest, scale, dest);
+				Matrix4f.translate(dest, translation, dest);
+				Matrix4f.rotate(dest, rotation, dest);
+				break;
+			case "SRT":
+				Matrix4f.scale(dest, scale, dest);
+				Matrix4f.rotate(dest, rotation, dest);
+				Matrix4f.translate(dest, translation, dest);
+				break;
+			case "RTS":
+				Matrix4f.rotate(dest, rotation, dest);
+				Matrix4f.translate(dest, translation, dest);
+				Matrix4f.scale(dest, scale, dest);
+				break;
+			case "RST":
+				Matrix4f.rotate(dest, rotation, dest);
+				Matrix4f.scale(dest, scale, dest);
+				Matrix4f.translate(dest, translation, dest);
+				break;
+		}
 
 		return dest;
 	}
@@ -37,6 +80,8 @@ public class MatrixGenerator
 		dest.elements[3][2] = -((2 * near * far) / frustum_length);
 		dest.elements[3][3] = 0;
 
+		dest.elementsChanged = true;
+
 		return dest;
 	}
 
@@ -55,11 +100,11 @@ public class MatrixGenerator
 
 	public static Matrix4f genViewMatrix(Vector3f pos, Vector3f rotation, TransformMatrix dest)
 	{
-		dest = dest == null ? new TransformMatrix() : dest;
+		dest = dest == null ? new TransformMatrix(true) : dest;
 		dest.setIdentity();
 
-		TransformMatrix.rotate(dest, new AxisAngle(new Vector3f(1,0,0), rotation.x()), dest);
-		TransformMatrix.rotate(dest, new AxisAngle(new Vector3f(0,1,0), rotation.y()), dest);
+		TransformMatrix.rotate(dest, new AxisAngle(new Vector3f(1, 0, 0), rotation.x()), dest);
+		TransformMatrix.rotate(dest, new AxisAngle(new Vector3f(0, 1, 0), rotation.y()), dest);
 
 		Vector3f negativeCameraPos = new Vector3f(pos).negate();
 		TransformMatrix.translate(dest, negativeCameraPos, dest);
@@ -84,7 +129,7 @@ public class MatrixGenerator
 		dest = dest == null ? new Matrix3f() : dest;
 		dest.setZero();
 
-		Matrix3f.mult(nbt0, Matrix3f.invert(nbt1, null), dest);
+		Matrix3f.multDot(nbt0, Matrix3f.invert(nbt1, null), dest);
 
 		return dest;
 	}

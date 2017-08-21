@@ -27,8 +27,39 @@ public class AxisAngle implements Rotation
 	@Override
 	public AxisAngle toAxisAngle()
 	{
-
 		return this;
+	}
+
+	@Override
+	public Matrix4f toRotationMatrix()
+	{
+		Matrix4f rotMat = new Matrix4f();
+
+		// Assumes normalized axis
+		float x = axis.elements[0][0];
+		float y = axis.elements[0][1];
+		float z = axis.elements[0][2];
+		float s = (float) Math.sin(angleRad);
+		float c = (float) Math.cos(angleRad);
+		float t = 1.0f - c;
+
+		rotMat.elements[0][0] = t * x * x + c;
+		rotMat.elements[0][1] = t * x * y + z * s;
+		rotMat.elements[0][2] = t * x * z - y * s;
+
+		rotMat.elements[1][0] = t * x * y - z * s;
+		rotMat.elements[1][1] = t * y * y + c;
+		rotMat.elements[1][2] = t * y * z + x * s;
+
+		rotMat.elements[2][0] = t * x * z + y * s;
+		rotMat.elements[2][1] = t * y * z - x * s;
+		rotMat.elements[2][2] = t * z * z + c;
+
+		rotMat.elements[3][3] = 1;
+
+		rotMat.elementsChanged = true;
+
+		return rotMat;
 	}
 
 	@Override
@@ -41,7 +72,7 @@ public class AxisAngle implements Rotation
 	@Override
 	public String toString()
 	{
-		String s = "Axis Angle:\tAxis: " + Vector.round(axis, 2, null) + "\tAngle: " + angleRad;
+		String s = "Axis Angle:\nAxis:\n" + Vector.round(axis, 2, new Vector3f()) + "Angle: " + angleRad;
 		return s;
 	}
 

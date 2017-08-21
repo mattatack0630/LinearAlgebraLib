@@ -20,7 +20,6 @@ public class Vector extends Matrix
 
 	public Vector(float[][] elements)
 	{
-
 		super(elements, 1, elements[0].length);
 	}
 
@@ -32,6 +31,7 @@ public class Vector extends Matrix
 		if (src.height == height)
 			for (int i = 0; i < src.height; i++)
 				elements[0][i] = src.elements[0][i];
+		elementsChanged = true;
 	}
 
 	protected void setElement(int i, float v)
@@ -39,6 +39,7 @@ public class Vector extends Matrix
 		if (i < height)
 		{
 			elements[0][i] = v;
+			elementsChanged = true;
 		}
 	}
 
@@ -46,11 +47,11 @@ public class Vector extends Matrix
 	{
 		for (int i = 0; i < height; i++)
 			this.elements[0][i] = elements[i];
+		elementsChanged = true;
 	}
 
 	protected int elementsSize()
 	{
-
 		return height;
 	}
 
@@ -59,57 +60,44 @@ public class Vector extends Matrix
 	 */
 	public float dot(Vector other)
 	{
-
 		return Vector.dot(this, other);
 	}
 
 	public <E extends Vector> E normalize()
 	{
-		try
-		{
-			float l = length();
-			if (l != 0 && l != 1)
-				scale(1f / l);
-			// avoid div by 0 and already normal
-			return (E) this;
-		} catch (ClassCastException | NullPointerException e)
-		{
-			return null;
-		}
+		float l = length();
+
+		// avoid div by 0 and already normal
+		if (l != 0 && l != 1)
+			scale(1f / l);
+
+		return (E) this;
 	}
 
 	public <E extends Vector> E setMagnitude(float magnitude)
 	{
-		try
-		{
-			/** important stuff **/
-			normalize();
-			scale(magnitude);
-			return (E) this;
-			/********************/
-		} catch (ClassCastException | NullPointerException e)
-		{
-			return null;
-		}
+		normalize();
+		scale(magnitude);
+		return (E) this;
 	}
 
 	public float angle(Vector other)
 	{
-
 		return Vector.angle(this, other);
 	}
 
 	public float lengthSquared()
 	{
 		float l = 0;
+
 		for (int i = 0; i < elementsSize(); i++)
 			l += (elements[0][i] * elements[0][i]);
+
 		return l;
 	}
 
 	public float length()
 	{
-
 		return (float) Math.sqrt(lengthSquared());
 	}
 

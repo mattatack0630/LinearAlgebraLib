@@ -16,19 +16,16 @@ public class Vector4f extends Vector
 
 	public Vector4f()
 	{
-
 		this(0, 0, 0, 0);
 	}
 
 	public Vector4f(float s)
 	{
-
 		this(s, s, s, s);
 	}
 
 	public Vector4f(Vector4f src)
 	{
-
 		this(src.x(), src.y(), src.z(), src.w());
 	}
 
@@ -58,21 +55,25 @@ public class Vector4f extends Vector
 	public void setX(float x)
 	{
 		elements[0][0] = x;
+		elementsChanged = true;
 	}
 
 	public void setY(float y)
 	{
 		elements[0][1] = y;
+		elementsChanged = true;
 	}
 
 	public void setZ(float z)
 	{
 		elements[0][2] = z;
+		elementsChanged = true;
 	}
 
 	public void setW(float w)
 	{
 		elements[0][3] = w;
+		elementsChanged = true;
 	}
 
 	public void set(float x, float y, float z, float w)
@@ -81,13 +82,15 @@ public class Vector4f extends Vector
 		elements[0][1] = y;
 		elements[0][2] = z;
 		elements[0][3] = w;
+		elementsChanged = true;
 	}
 
 	public void set(Vector4f v)
 	{
-		setX(v.x());
-		setY(v.y());
-		setZ(v.z());
-		setW(v.w());
+		elements[0][0] = v.elements[0][0];
+		elements[0][1] = v.elements[0][1];
+		elements[0][2] = v.elements[0][2];
+		elements[0][3] = v.elements[0][3];
+		elementsChanged = true;
 	}
 }

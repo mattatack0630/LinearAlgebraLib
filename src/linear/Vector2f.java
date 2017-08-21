@@ -48,16 +48,19 @@ public class Vector2f extends Vector
 	public void setX(float x)
 	{
 		elements[0][0] = x;
+		elementsChanged = true;
 	}
 
 	public void setY(float y)
 	{
 		elements[0][1] = y;
+		elementsChanged = true;
 	}
 
 	public void set(float x, float y)
 	{
 		elements[0][0] = x;
 		elements[0][1] = y;
+		elementsChanged = true;
 	}
 }

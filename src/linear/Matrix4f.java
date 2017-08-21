@@ -10,7 +10,6 @@ public class Matrix4f extends SquareMatrix
 	 */
 	public Matrix4f()
 	{
-
 		super(4);
 	}
 
@@ -21,12 +20,19 @@ public class Matrix4f extends SquareMatrix
 	}
 
 	/**
-	 * Mat4 Specific Methods
+	 * Faster, 4x4 specific method
 	 */
-	public Matrix4f invert()
+	public Matrix4f invertMatrix4f()
 	{
-		Matrix4f.invert(this, this);
-		return this;
+		return Matrix4f.invert(this, this);
+	}
+
+	/**
+	 * Faster, 4x4 specific method
+	 */
+	public float determinantMatrix4f()
+	{
+		return Matrix4f.determinant(this);
 	}
 
 	/**
@@ -38,11 +44,6 @@ public class Matrix4f extends SquareMatrix
 
 		if (determinant != 0.0F)
 		{
-			if (dest == null)
-			{
-				dest = new Matrix4f();
-			}
-
 			float determinant_inv = 1.0F / determinant;
 			float t00 = determinant3x3(src.elements[1][1], src.elements[1][2], src.elements[1][3], src.elements[2][1], src.elements[2][2], src.elements[2][3], src.elements[3][1], src.elements[3][2], src.elements[3][3]);
 			float t01 = -determinant3x3(src.elements[1][0], src.elements[1][2], src.elements[1][3], src.elements[2][0], src.elements[2][2], src.elements[2][3], src.elements[3][0], src.elements[3][2], src.elements[3][3]);
@@ -76,14 +77,13 @@ public class Matrix4f extends SquareMatrix
 			dest.elements[3][1] = t13 * determinant_inv;
 			dest.elements[3][2] = t23 * determinant_inv;
 			dest.elements[2][3] = t32 * determinant_inv;
-			return dest;
-		} else
-		{
-			return null;
 		}
+
+		dest.elementsChanged = true;
+		return dest;
 	}
 
-	protected static float determinant(Matrix4f src)
+	public static float determinant(Matrix4f src)
 	{
 		float f = src.elements[0][0] * (src.elements[1][1] * src.elements[2][2] * src.elements[3][3] + src.elements[1][2] * src.elements[2][3] * src.elements[3][1] + src.elements[1][3] * src.elements[2][1] * src.elements[3][2] - src.elements[1][3] * src.elements[2][2] * src.elements[3][1] - src.elements[1][1] * src.elements[2][3] * src.elements[3][2] - src.elements[1][2] * src.elements[2][1] * src.elements[3][3]);
 		f -= src.elements[0][1] * (src.elements[1][0] * src.elements[2][2] * src.elements[3][3] + src.elements[1][2] * src.elements[2][3] * src.elements[3][0] + src.elements[1][3] * src.elements[2][0] * src.elements[3][2] - src.elements[1][3] * src.elements[2][2] * src.elements[3][0] - src.elements[1][0] * src.elements[2][3] * src.elements[3][2] - src.elements[1][2] * src.elements[2][0] * src.elements[3][3]);
@@ -92,12 +92,12 @@ public class Matrix4f extends SquareMatrix
 		return f;
 	}
 
-	protected static float determinant3x3(float t00, float t01, float t02, float t10, float t11, float t12, float t20, float t21, float t22)
+	private static float determinant3x3(float t00, float t01, float t02, float t10, float t11, float t12, float t20, float t21, float t22)
 	{
 		return t00 * (t11 * t22 - t12 * t21) + t01 * (t12 * t20 - t10 * t22) + t02 * (t10 * t21 - t11 * t20);
 	}
 
-	public static Matrix4f scale(TransformMatrix src, Vector3f scale, TransformMatrix dest)
+	public static Matrix4f scale(Matrix4f src, Vector3f scale, Matrix4f dest)
 	{
 		Matrix4f m = new Matrix4f(src);
 
@@ -105,15 +105,13 @@ public class Matrix4f extends SquareMatrix
 			for (int j = 0; j < dest.height; j++)
 				m.elements[i][j] = src.elements[i][j] * scale.elements[0][i];
 
-		if (dest != null)
-		{
-			dest.load(m.elements, m.width, m.height);
-		}
+		dest.load(m.elements, m.width, m.height);
+		dest.elementsChanged = true;
 
 		return dest;
 	}
 
-	public static Matrix4f translate(TransformMatrix src, Vector3f tran, TransformMatrix dest)
+	public static Matrix4f translate(Matrix4f src, Vector3f tran, Matrix4f dest)
 	{
 		Matrix4f m = new Matrix4f(src);
 		Vector4f vec4f = new Vector4f(tran.x(), tran.y(), tran.z(), 1.0f);
@@ -121,15 +119,13 @@ public class Matrix4f extends SquareMatrix
 		for (int i = 0; i < m.height; i++)
 			m.elements[3][i] = Vector.dot(new Vector(src.getRow(i)), vec4f);
 
-		if (dest != null)
-		{
-			dest.load(m.elements, m.width, m.height);
-		}
+		dest.load(m.elements, m.width, m.height);
+		dest.elementsChanged = true;
 
 		return dest;
 	}
 
-	public static Matrix4f rotate( Matrix4f src, AxisAngle axisAngle, Matrix4f dest)
+	public static Matrix4f rotate(Matrix4f src, AxisAngle axisAngle, Matrix4f dest)
 	{
 		Vector3f axis = axisAngle.getAxis();
 		float angle = axisAngle.getAngleRad();
@@ -175,18 +171,49 @@ public class Matrix4f extends SquareMatrix
 		m.elements[1][2] = t12;
 		m.elements[1][3] = t13;
 
-		if (dest != null)
-		{
-			dest.load(m.elements, m.width, m.height);
-		}
+		dest.load(m.elements, m.width, m.height);
+		dest.elementsChanged = true;
 
 		return dest;
 	}
 
 	public static Matrix4f rotate(Matrix4f left, Rotation rotation, Matrix4f dest)
 	{
-		AxisAngle aa = rotation.toAxisAngle();
-		return rotate(left, aa, dest);
+		dest.elementsChanged = true;
+		Matrix4f rotMat = rotation.toRotationMatrix();
+		return multDot(left, rotMat, dest);
 	}
 
+	/**
+	 * Static Methods
+	 */
+	public static Vector[] decompose(Matrix4f src)
+	{
+		Matrix4f nMat = new Matrix4f();
+		nMat.load(src.elements, 4, 4);
+
+		// Position Component
+		Vector3f ePos = new Vector3f(nMat.getColumn(3));
+		nMat.translate(nMat, new Vector3f(-ePos.x(), -ePos.y(), -ePos.z()), nMat);
+
+		// Scale Component
+		Vector3f eScale = new Vector3f(new Vector3f(nMat.getColumn(0)).length(),
+				new Vector3f(nMat.getColumn(1)).length(),
+				new Vector3f(nMat.getColumn(2)).length());
+
+		Matrix4f.scale(nMat, new Vector3f(1f / eScale.x(), 1f / eScale.y(), 1f / eScale.z()), nMat);
+
+		// Rotation Component
+		Quaternion eRot = new Quaternion();
+		eRot.elements[0][3] = (float) Math.sqrt(Math.max(0, 1 + nMat.elements[0][0] + nMat.elements[1][1] + nMat.elements[2][2])) / 2;
+		eRot.elements[0][0] = (float) Math.sqrt(Math.max(0, 1 + nMat.elements[0][0] - nMat.elements[1][1] - nMat.elements[2][2])) / 2;
+		eRot.elements[0][1] = (float) Math.sqrt(Math.max(0, 1 - nMat.elements[0][0] + nMat.elements[1][1] - nMat.elements[2][2])) / 2;
+		eRot.elements[0][2] = (float) Math.sqrt(Math.max(0, 1 - nMat.elements[0][0] - nMat.elements[1][1] + nMat.elements[2][2])) / 2;
+		eRot.elements[0][0] *= Maths.getSign(nMat.elements[1][2] - nMat.elements[2][1]);
+		eRot.elements[0][1] *= Maths.getSign(nMat.elements[2][0] - nMat.elements[0][2]);
+		eRot.elements[0][2] *= Maths.getSign(nMat.elements[0][1] - nMat.elements[1][0]);
+		eRot.normalize();
+
+		return new Vector[]{ePos, eRot, eScale};
+	}
 }

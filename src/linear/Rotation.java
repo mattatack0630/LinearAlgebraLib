@@ -9,5 +9,7 @@ public interface Rotation
 
 	AxisAngle toAxisAngle();
 
+	Matrix4f toRotationMatrix();
+
 	Rotation copy();
 }

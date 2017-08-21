@@ -21,19 +21,43 @@ public class Matrix3f extends SquareMatrix
 	}
 
 	/**
+	 * Faster, 3x3 specific method
+	 * */
+	public Matrix3f invertMatrix3f()
+	{
+		return Matrix3f.invert(this, this);
+	}
+
+	/**
+	 * Faster, 3x3 specific method
+	 * */
+	public float determinantMatrix3f()
+	{
+		return Matrix3f.determinant(this);
+	}
+
+	/**
 	 * Mat3 Specific Methods
 	 */
-	public static Matrix3f invert(Matrix3f src, Matrix3f dest)
+
+	public static <E extends Matrix3f> float determinant(E src)
 	{
-		float determinant = src.determinant();
+		float[][] elements = src.elements;
+		float f = elements[0][0] * (elements[1][1] * elements[2][2]
+				- elements[1][2] * elements[2][1])
+				+ elements[0][1] * (elements[1][2] * elements[2][0]
+				- elements[1][0] * elements[2][2])
+				+ elements[0][2] * (elements[1][0] * elements[2][1]
+				- elements[1][1] * elements[2][0]);
+		return f;
+	}
+
+	public static <E extends Matrix3f> E invert(E src, E dest)
+	{
+		float determinant = Matrix3f.determinant(src);
 
 		if (determinant != 0.0F)
 		{
-			if (dest == null)
-			{
-				dest = new Matrix3f();
-			}
-
 			float determinant_inv = 1.0F / determinant;
 			float t00 = src.elements[1][1] * src.elements[2][2] - src.elements[1][2] * src.elements[2][1];
 			float t01 = -src.elements[1][0] * src.elements[2][2] + src.elements[1][2] * src.elements[2][0];
@@ -53,16 +77,9 @@ public class Matrix3f extends SquareMatrix
 			dest.elements[0][2] = t20 * determinant_inv;
 			dest.elements[1][2] = t21 * determinant_inv;
 			dest.elements[2][1] = t12 * determinant_inv;
-			return dest;
-		} else
-		{
-			return null;
 		}
-	}
 
-	public float determinant()
-	{
-		float f = elements[0][0] * (elements[1][1] * elements[2][2] - elements[1][2] * elements[2][1]) + elements[0][1] * (elements[1][2] * elements[2][0] - elements[1][0] * elements[2][2]) + elements[0][2] * (elements[1][0] * elements[2][1] - elements[1][1] * elements[2][0]);
-		return f;
+		dest.elementsChanged = true;
+		return dest;
 	}
 }

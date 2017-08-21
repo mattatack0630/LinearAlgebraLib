@@ -13,29 +13,32 @@ public class Euler implements Rotation
 	public static final Vector3f ZYX = new Vector3f(2, 1, 0);
 
 	private Vector3f eulerRad;
-	private Vector3f dir;
+	private Vector3f order;
 
 	public Euler(Vector3f eulerRad, Vector3f dir)
 	{
 		this.eulerRad = new Vector3f(eulerRad);
-		this.dir = dir;
+		this.order = dir;
 	}
 
 	public Euler(Vector3f eulerRad)
 	{
-
 		this(eulerRad, XYZ);
+	}
+
+	public Euler(float x, float y, float z)
+	{
+		this(new Vector3f(x, y, z), XYZ);
 	}
 
 	public Euler()
 	{
-
 		this(new Vector3f(), XYZ);
 	}
 
 	/**
 	 * Overrides/ Implementations
-	 * */
+	 */
 	@Override
 	public void fromAxisAngle(AxisAngle a)
 	{
@@ -69,6 +72,8 @@ public class Euler implements Rotation
 		eulerRad.elements[0][1] = (float) Math.atan2(axis.y() * s - axis.x() * axis.z() * t,
 				1 - (axis.y() * axis.y() + axis.z() * axis.z()) * t);
 		eulerRad.elements[0][2] = (float) Math.asin(axis.x() * axis.y() * t + axis.z() * s);
+
+		eulerRad.elementsChanged = true;
 	}
 
 	@Override
@@ -106,10 +111,17 @@ public class Euler implements Rotation
 	}
 
 	@Override
+	public Matrix4f toRotationMatrix()
+	{
+		AxisAngle aa = toAxisAngle();
+		return aa.toRotationMatrix();
+	}
+
+	@Override
 	public Rotation copy()
 	{
 
-		return new Euler(eulerRad, dir);
+		return new Euler(eulerRad, order);
 	}
 
 	@Override
@@ -128,10 +140,10 @@ public class Euler implements Rotation
 
 	/**
 	 * Getters and Setters
-	 * */
-	public Vector3f getDir()
+	 */
+	public Vector3f getOrder()
 	{
-		return dir;
+		return order;
 	}
 
 	public Vector3f getEulerRad()
@@ -139,9 +151,9 @@ public class Euler implements Rotation
 		return eulerRad;
 	}
 
-	public void setDir(Vector3f dir)
+	public void setOrder(Vector3f order)
 	{
-		this.dir = dir;
+		this.order = order;
 	}
 
 	public void setEulerRad(Vector3f eulerRad)
